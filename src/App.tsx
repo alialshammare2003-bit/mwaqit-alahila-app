@@ -18,6 +18,10 @@ import { MarriageCountdownCard } from './components/MarriageCountdownCard';
 import { NonInfallibleShahadahCard } from './components/NonInfallibleShahadahCard';
 import { NonInfallibleWiladahCard } from './components/NonInfallibleWiladahCard';
 import { NonInfallibleMarriageCard } from './components/NonInfallibleMarriageCard';
+import { HolyMapModal } from './components/HolyMapModal';
+import { GoogleCalendarSyncModal } from './components/GoogleCalendarSyncModal';
+import { initAuth, googleSignIn, logout } from './firebase';
+import { User } from 'firebase/auth';
 import { BloodRainEffect } from './components/effects/BloodRainEffect';
 import { FlowerPetalsEffect } from './components/effects/FlowerPetalsEffect';
 import { GoldenStardustEffect } from './components/effects/GoldenStardustEffect';
@@ -57,6 +61,9 @@ export default function App() {
     getNextNonInfallibleMarriage(new Date())
   );
 
+  // Firebase Auth state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
   // Active category: 14 Infallibles vs Non-Infallibles vs All
   const [countdownCategory, setCountdownCategory] = useState<'infallibles' | 'non_infallibles' | 'all'>('infallibles');
 
@@ -82,6 +89,38 @@ export default function App() {
   const [showScorpioTable, setShowScorpioTable] = useState<boolean>(false);
   const [showEventsDir, setShowEventsDir] = useState<boolean>(false);
   const [showDateConverter, setShowDateConverter] = useState<boolean>(false);
+  const [showHolyMap, setShowHolyMap] = useState<boolean>(false);
+  const [showCalendarSync, setShowCalendarSync] = useState<boolean>(false);
+  const [activeHorizon, setActiveHorizon] = useState<string>('أفق النجف الأشرف');
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = initAuth(
+      (user) => setCurrentUser(user),
+      () => setCurrentUser(null)
+    );
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      const res = await googleSignIn();
+      if (res?.user) {
+        setCurrentUser(res.user);
+      }
+    } catch (err: any) {
+      console.warn('Sign-in cancelled or failed:', err);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await logout();
+      setCurrentUser(null);
+    } catch (err: any) {
+      console.error('Sign-out error:', err);
+    }
+  };
 
   // Active view tab on mobile (calendar / events / scorpio)
   const [activeTab, setActiveTab] = useState<'calendar' | 'events' | 'scorpio'>('calendar');
@@ -183,6 +222,11 @@ export default function App() {
         onOpenScorpioTable={() => setShowScorpioTable(true)}
         onOpenEventsDirectory={() => setShowEventsDir(true)}
         onOpenDateConverter={() => setShowDateConverter(true)}
+        onOpenMap={() => setShowHolyMap(true)}
+        onOpenCalendarSync={() => setShowCalendarSync(true)}
+        user={currentUser}
+        onSignIn={handleSignIn}
+        onSignOut={handleSignOut}
       />
 
       {/* Sticky Month Selector Ribbon */}
@@ -538,6 +582,27 @@ export default function App() {
         <DateConverter
           onClose={() => setShowDateConverter(false)}
           onNavigateToDay={handleNavigateToDay}
+        />
+      )}
+
+      {/* Google Maps Holy Sites & Observatories Modal */}
+      {showHolyMap && (
+        <HolyMapModal
+          isOpen={showHolyMap}
+          onClose={() => setShowHolyMap(false)}
+          onSelectHorizon={(horizonName) => {
+            setActiveHorizon(horizonName);
+          }}
+        />
+      )}
+
+      {/* Google Calendar Sync Modal */}
+      {showCalendarSync && (
+        <GoogleCalendarSyncModal
+          isOpen={showCalendarSync}
+          onClose={() => setShowCalendarSync(false)}
+          user={currentUser}
+          onRequireAuth={handleSignIn}
         />
       )}
 
