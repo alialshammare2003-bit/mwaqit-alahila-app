@@ -1,6 +1,6 @@
 {
   "name": "مواقيت الأهلة 1448 هـ",
-  "description": "تطبيق مواقيت الأهلة والتقويم الهجري لعام 1448 هـ مع مصادقة Firebase وتسجيل الدخول بحساب Google ومزامنة تقويم Google وخريطة العتبات المقدسة والمراصد عبر Google Maps.",
-  "requestFramePermissions": ["geolocation"],
+  "description": "تطبيق مواقيت الأهلة والتقويم الهجري لعام 1448 هـ (2026-2027 م) وفق أفق النجف الأشرف مع تفاصيل رصد الهلال والوقائع التاريخية وبرج العقرب.",
+  "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

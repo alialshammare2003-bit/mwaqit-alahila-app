@@ -75,7 +75,21 @@ export interface NextWiladahInfo {
   seconds: number;
 }
 
-export type NextMarriageInfo = NextWiladahInfo;
+export interface NextOtherEventInfo {
+  event: HistoricalEvent;
+  month: HijriMonthData;
+  targetDate: Date;
+  hijriDateFormatted: string;
+  gregorianDateFormatted: string;
+  isToday: boolean;
+  diffMs: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+export type NextMarriageInfo = NextOtherEventInfo;
 
 // Convert Scorpio date text like "24 حزيران 2026 م" and time "9:44" and period "صباحاً" to Date
 export function parseScorpioTimestamp(
@@ -373,25 +387,59 @@ export function getDayAtmosphere(events: HistoricalEvent[] = []): DayAtmosphere 
   return 'royal-gold';
 }
 
-export function isFourteenInfalliblesMarriage(ev: HistoricalEvent): boolean {
+export function isShahadahOrWafatEvent(ev: HistoricalEvent): boolean {
+  if (ev.type === 'shahadah') return true;
   const t = (ev.title + ' ' + (ev.description || '')).toLowerCase();
-  if (!t.includes('زواج') && !t.includes('عقد قران') && !t.includes('قران')) {
-    return false;
-  }
-  const infallibleMarriagePatterns = [
-    /النورين|علي.*فاطمة|فاطمة.*علي|أمير\s*المؤمنين.*الزهراء|الزهراء.*أمير\s*المؤمنين/i,
-    /الرسول.*خديجة|خديجة.*الرسول|النبي.*خديجة|خديجة.*النبي/i
+  const deathKeywords = /شهادة|استشهاد|مقتل|قتل|استشهد|سم |مسموم|وفاة|توفي|ارتحال|رحيل|انتقال/i;
+  return deathKeywords.test(t);
+}
+
+export function isWiladahOrMawlidEvent(ev: HistoricalEvent): boolean {
+  if (ev.type === 'wiladah') return true;
+  const t = (ev.title + ' ' + (ev.description || '')).toLowerCase();
+  const birthKeywords = /ولادة|مولد|ميلاد/i;
+  return birthKeywords.test(t);
+}
+
+export function isOtherEvent(ev: HistoricalEvent): boolean {
+  return !isShahadahOrWafatEvent(ev) && !isWiladahOrMawlidEvent(ev);
+}
+
+export function isFourteenInfalliblesOtherEvent(ev: HistoricalEvent): boolean {
+  if (!isOtherEvent(ev)) return false;
+  if (ev.isFourteenInfallibles) return true;
+  const t = (ev.title + ' ' + (ev.description || '')).toLowerCase();
+  const patterns = [
+    /النبي|الرسول|خاتم\s*الأنبياء|المصطفى/i,
+    /أمير\s*المؤمنين|علي\s*بن\s*أبي\s*طالب/i,
+    /الزهراء|فاطمة/i,
+    /الحسن\s*المجتبى|الحسن\s*بن\s*علي|الإمام\s*الحسن/i,
+    /الإمام\s*الحسين|الحسين\s*\(ع\)|سبايا\s*أهل\s*البيت|ورود\s*كربلاء/i,
+    /السجاد|زين\s*العابدين|علي\s*بن\s*الحسين/i,
+    /الباقر|محمد\s*بن\s*علي/i,
+    /الصادق|جعفر\s*بن\s*محمد/i,
+    /الكاظم|موسى\s*بن\s*جعفر/i,
+    /الرضا|علي\s*بن\s*موسى/i,
+    /الجواد|محمد\s*بن\s*علي/i,
+    /الهادي|علي\s*بن\s*محمد/i,
+    /العسكري|الحسن\s*بن\s*علي/i,
+    /المهدي|الحجة|صاحب\s*الزمان/i,
+    /الغدير|المباهلة|المبعث|ليلة\s*المبيت|رد\s*الشمس|فدك|هل\s*أتى|الأربعين|ليلة\s*القدر|عيد\s*الفطر|عيد\s*الأضحى|دحو\s*الأرض|زواج\s*النورين|حجة\s*الوداع|المؤاخاة|معراج\s*النبي/i
   ];
-  return infallibleMarriagePatterns.some((p) => p.test(t));
+  return patterns.some((p) => p.test(t));
+}
+
+export function isNonInfallibleOtherEvent(ev: HistoricalEvent): boolean {
+  if (!isOtherEvent(ev)) return false;
+  return !isFourteenInfalliblesOtherEvent(ev);
+}
+
+export function isFourteenInfalliblesMarriage(ev: HistoricalEvent): boolean {
+  return isFourteenInfalliblesOtherEvent(ev);
 }
 
 export function isNonInfallibleMarriage(ev: HistoricalEvent): boolean {
-  const t = (ev.title + ' ' + (ev.description || '')).toLowerCase();
-  if (!t.includes('زواج') && !t.includes('عقد قران') && !t.includes('قران')) {
-    return false;
-  }
-  if (isFourteenInfalliblesMarriage(ev)) return false;
-  return true;
+  return isNonInfallibleOtherEvent(ev);
 }
 
 export function getNextShahadah(now: Date = new Date()): NextShahadahInfo | null {
@@ -778,7 +826,7 @@ export function getNextNonInfallibleWiladah(now: Date = new Date()): NextWiladah
   };
 }
 
-export function getNextMarriage(now: Date = new Date()): NextMarriageInfo | null {
+export function getNextInfallibleOtherEvent(now: Date = new Date()): NextOtherEventInfo | null {
   const currentTimestamp = now.getTime();
   let nextMatch: {
     event: HistoricalEvent;
@@ -791,9 +839,9 @@ export function getNextMarriage(now: Date = new Date()): NextMarriageInfo | null
   } | null = null;
 
   for (const m of MONTHS_DATA) {
-    const marriageEvents = m.events.filter((e) => isFourteenInfalliblesMarriage(e));
+    const otherEvents = m.events.filter((e) => isFourteenInfalliblesOtherEvent(e));
 
-    for (const ev of marriageEvents) {
+    for (const ev of otherEvents) {
       const gridItem = m.grid.find((g) => g.hijri === ev.day);
       if (!gridItem) continue;
 
@@ -833,10 +881,10 @@ export function getNextMarriage(now: Date = new Date()): NextMarriageInfo | null
     }
   }
 
-  // Fallback rollover to first marriage of the calendar year
+  // Fallback rollover to first infallible other event of the calendar year
   if (!nextMatch && MONTHS_DATA.length > 0) {
     for (const m of MONTHS_DATA) {
-      const firstEv = m.events.find((e) => isFourteenInfalliblesMarriage(e));
+      const firstEv = m.events.find((e) => isFourteenInfalliblesOtherEvent(e));
       if (firstEv) {
         const gridItem = m.grid.find((g) => g.hijri === firstEv.day);
         if (gridItem) {
@@ -875,7 +923,7 @@ export function getNextMarriage(now: Date = new Date()): NextMarriageInfo | null
   };
 }
 
-export function getNextNonInfallibleMarriage(now: Date = new Date()): NextMarriageInfo | null {
+export function getNextNonInfallibleOtherEvent(now: Date = new Date()): NextOtherEventInfo | null {
   const currentTimestamp = now.getTime();
   let nextMatch: {
     event: HistoricalEvent;
@@ -888,9 +936,9 @@ export function getNextNonInfallibleMarriage(now: Date = new Date()): NextMarria
   } | null = null;
 
   for (const m of MONTHS_DATA) {
-    const marriageEvents = m.events.filter((e) => isNonInfallibleMarriage(e));
+    const otherEvents = m.events.filter((e) => isNonInfallibleOtherEvent(e));
 
-    for (const ev of marriageEvents) {
+    for (const ev of otherEvents) {
       const gridItem = m.grid.find((g) => g.hijri === ev.day);
       if (!gridItem) continue;
 
@@ -930,10 +978,10 @@ export function getNextNonInfallibleMarriage(now: Date = new Date()): NextMarria
     }
   }
 
-  // Fallback rollover to first non-infallible marriage of the calendar year
+  // Fallback rollover to first non-infallible other event of the calendar year
   if (!nextMatch && MONTHS_DATA.length > 0) {
     for (const m of MONTHS_DATA) {
-      const firstEv = m.events.find((e) => isNonInfallibleMarriage(e));
+      const firstEv = m.events.find((e) => isNonInfallibleOtherEvent(e));
       if (firstEv) {
         const gridItem = m.grid.find((g) => g.hijri === firstEv.day);
         if (gridItem) {
@@ -971,6 +1019,104 @@ export function getNextNonInfallibleMarriage(now: Date = new Date()): NextMarria
     seconds,
   };
 }
+
+export function getNextAnyOtherEvent(now: Date = new Date()): NextOtherEventInfo | null {
+  const currentTimestamp = now.getTime();
+  let nextMatch: {
+    event: HistoricalEvent;
+    month: HijriMonthData;
+    targetDate: Date;
+    hijriDateFormatted: string;
+    gregorianDateFormatted: string;
+    isToday: boolean;
+    diffMs: number;
+  } | null = null;
+
+  for (const m of MONTHS_DATA) {
+    const otherEvents = m.events.filter((e) => isOtherEvent(e));
+
+    for (const ev of otherEvents) {
+      const gridItem = m.grid.find((g) => g.hijri === ev.day);
+      if (!gridItem) continue;
+
+      const gMonthIdx = ARABIC_MONTH_NAMES.indexOf(gridItem.gregorianMonth);
+      if (gMonthIdx === -1) continue;
+
+      const is2027 =
+        gridItem.gregorianMonth === 'كانون الثاني' ||
+        gridItem.gregorianMonth === 'شباط' ||
+        gridItem.gregorianMonth === 'آذار' ||
+        gridItem.gregorianMonth === 'نيسان' ||
+        gridItem.gregorianMonth === 'أيار' ||
+        (gridItem.gregorianMonth === 'حزيران' && m.id === 12);
+      const gYear = is2027 ? 2027 : 2026;
+
+      const targetDate = new Date(gYear, gMonthIdx, gridItem.gregorianDay, 0, 0, 0);
+      const endOfDay = new Date(gYear, gMonthIdx, gridItem.gregorianDay, 23, 59, 59).getTime();
+
+      if (endOfDay >= currentTimestamp) {
+        const diffMs = targetDate.getTime() - currentTimestamp;
+        const isToday = currentTimestamp >= targetDate.getTime() && currentTimestamp <= endOfDay;
+
+        if (!nextMatch || targetDate.getTime() < nextMatch.targetDate.getTime()) {
+          nextMatch = {
+            event: ev,
+            month: m,
+            targetDate,
+            hijriDateFormatted: `${gridItem.dayOfWeek} ${ev.day} ${m.nameWithPrefix} ١٤٤٨ هـ`,
+            gregorianDateFormatted: `${gridItem.gregorianDay} ${gridItem.gregorianMonth} ${gYear} م`,
+            isToday,
+            diffMs: Math.max(0, diffMs),
+          };
+        }
+      }
+    }
+  }
+
+  if (!nextMatch && MONTHS_DATA.length > 0) {
+    for (const m of MONTHS_DATA) {
+      const firstEv = m.events.find((e) => isOtherEvent(e));
+      if (firstEv) {
+        const gridItem = m.grid.find((g) => g.hijri === firstEv.day);
+        if (gridItem) {
+          const gMonthIdx = ARABIC_MONTH_NAMES.indexOf(gridItem.gregorianMonth);
+          const targetDate = new Date(2026, gMonthIdx, gridItem.gregorianDay, 0, 0, 0);
+          const diffMs = targetDate.getTime() - currentTimestamp;
+          nextMatch = {
+            event: firstEv,
+            month: m,
+            targetDate,
+            hijriDateFormatted: `${gridItem.dayOfWeek} ${firstEv.day} ${m.nameWithPrefix} ١٤٤٨ هـ`,
+            gregorianDateFormatted: `${gridItem.gregorianDay} ${gridItem.gregorianMonth} 2026 م`,
+            isToday: false,
+            diffMs: Math.max(0, diffMs),
+          };
+          break;
+        }
+      }
+    }
+  }
+
+  if (!nextMatch) return null;
+
+  const totalSeconds = Math.floor(nextMatch.diffMs / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    ...nextMatch,
+    days,
+    hours,
+    minutes,
+    seconds,
+  };
+}
+
+export const getNextOtherEvent = getNextInfallibleOtherEvent;
+export const getNextMarriage = getNextInfallibleOtherEvent;
+export const getNextNonInfallibleMarriage = getNextNonInfallibleOtherEvent;
 
 export function getTodayInfo(now: Date = new Date()): TodayInfo {
   const gDay = now.getDate();

@@ -1,19 +1,19 @@
 import React from 'react';
-import { HeartHandshake, Clock, ArrowLeft, Users } from 'lucide-react';
-import { NextMarriageInfo } from '../utils/dateUtils';
+import { Landmark, Clock, ArrowLeft, Sparkles, CalendarDays } from 'lucide-react';
+import { NextOtherEventInfo } from '../utils/dateUtils';
 
-interface NonInfallibleMarriageCardProps {
-  nextMarriage: NextMarriageInfo | null;
+interface OtherEventCountdownCardProps {
+  nextOtherEvent: NextOtherEventInfo | null;
   onNavigateToDay: (monthId: number, hijriDay: number) => void;
   isClosest?: boolean;
 }
 
-export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps> = ({
-  nextMarriage,
+export const OtherEventCountdownCard: React.FC<OtherEventCountdownCardProps> = ({
+  nextOtherEvent,
   onNavigateToDay,
   isClosest = false,
 }) => {
-  if (!nextMarriage) return null;
+  if (!nextOtherEvent) return null;
 
   const {
     event,
@@ -25,40 +25,40 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
     hours,
     minutes,
     seconds,
-  } = nextMarriage;
+  } = nextOtherEvent;
 
   return (
     <div
-      id="non-infallible-marriage-card"
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-950 via-indigo-950/35 to-stone-900 border shadow-2xl p-4 sm:p-5 transition-all ${
-        isClosest ? 'border-indigo-500/60 ring-1 ring-indigo-500/20' : 'border-indigo-600/30'
+      id="infallible-other-event-card"
+      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-stone-950 via-sky-950/30 to-stone-900 border shadow-2xl p-4 sm:p-5 transition-all ${
+        isClosest ? 'border-sky-500/60 ring-1 ring-sky-500/20' : 'border-sky-600/30'
       }`}
     >
-      {/* Subtle Indigo Background Glow */}
-      <div className="absolute top-0 right-1/4 w-64 h-32 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Subtle Sky Background Glow */}
+      <div className="absolute top-0 right-1/4 w-64 h-32 bg-sky-600/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-800/80">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-            <HeartHandshake className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
+            <CalendarDays className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base sm:text-lg font-bold text-indigo-200 font-amiri">
-                العد التنازلي لزواج الشخصيات الجليلة
+              <h3 className="text-base sm:text-lg font-bold text-sky-200 font-amiri">
+                العد التنازلي للحدث القادم
               </h3>
               {isClosest && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
                   ★ الأقرب موعداً
                 </span>
               )}
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-700/50">
-                غير المعصومين (ع)
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-950/80 text-sky-300 border border-sky-700/50">
+                الوقائع والمناسبات العامة
               </span>
             </div>
             <p className="text-xs text-stone-400 font-tajawal">
-              خاص بمناسبات الزواج للشخصيات الجليلة غير المعصومة (كزواج عبد الله وآمنة والدي النبي الأكرم صلوات الله عليهم)
+              خاص بالوقائع والأحداث الإسلامية والتاريخية (عدا الاستشهاد والوفاة والولادة والمولد)
             </p>
           </div>
         </div>
@@ -66,7 +66,7 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
         {/* Quick View in Calendar */}
         <button
           onClick={() => onNavigateToDay(month.id, event.day)}
-          className="self-start sm:self-center text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 hover:underline active:scale-95 transition-all"
+          className="self-start sm:self-center text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 hover:underline active:scale-95 transition-all"
         >
           <span>عرض في التقويم</span>
           <ArrowLeft className="w-3.5 h-3.5" />
@@ -76,9 +76,16 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
       {/* Event Details and Target Date */}
       <div className="mt-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-stone-950/60 p-3.5 rounded-xl border border-stone-800/80">
         <div className="space-y-1">
-          <h4 className="text-base sm:text-lg font-bold text-indigo-300 font-amiri">
-            {event.title}
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4 className="text-base sm:text-lg font-bold text-sky-300 font-amiri">
+              {event.title}
+            </h4>
+            {event.yearHijriOrPre && (
+              <span className="text-[10px] px-2 py-0.5 rounded bg-stone-800 text-stone-300 border border-stone-700">
+                {event.yearHijriOrPre}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-stone-300 leading-relaxed max-w-xl">
             {event.description}
           </p>
@@ -96,30 +103,30 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
 
       {/* Countdown Timer Display */}
       {isToday ? (
-        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-indigo-950/80 via-stone-900 to-indigo-950/80 border border-indigo-500/40 text-center space-y-1">
-          <div className="text-base sm:text-lg font-bold text-indigo-300 font-amiri">
-            متباركون بذكرى الزواج المبارك
+        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-sky-950/80 via-stone-900 to-sky-950/80 border border-sky-500/40 text-center space-y-1">
+          <div className="text-base sm:text-lg font-bold text-sky-300 font-amiri">
+            اليوم تصادف هذه المناسبة المباركة
           </div>
           <div className="text-xs sm:text-sm text-stone-300">
-            اليوم تصادف ذكرى: <strong>{event.title}</strong>
+            اليوم ذكرى: <strong>{event.title}</strong>
           </div>
         </div>
       ) : (
         <div className="mt-4">
           <div className="text-xs text-stone-400 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-indigo-400" />
-              <span>الوقت المتبقي حتى حلول مناسبة الزواج المباركة:</span>
+              <Clock className="w-3.5 h-3.5 text-sky-400" />
+              <span>الوقت المتبقي حتى حلول هذا الحدث:</span>
             </span>
-            <span className="text-[11px] text-indigo-400 font-mono">
+            <span className="text-[11px] text-sky-400 font-mono">
               تحديث حي لحظي
             </span>
           </div>
 
           <div className="grid grid-cols-4 gap-2 sm:gap-3 text-center">
             {/* Days */}
-            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-indigo-900/40 shadow-inner">
-              <div className="text-xl sm:text-3xl font-bold font-mono text-indigo-200">
+            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-sky-900/40 shadow-inner">
+              <div className="text-xl sm:text-3xl font-bold font-mono text-sky-200">
                 {days}
               </div>
               <div className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
@@ -128,8 +135,8 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
             </div>
 
             {/* Hours */}
-            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-indigo-900/40 shadow-inner">
-              <div className="text-xl sm:text-3xl font-bold font-mono text-indigo-200">
+            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-sky-900/40 shadow-inner">
+              <div className="text-xl sm:text-3xl font-bold font-mono text-sky-200">
                 {String(hours).padStart(2, '0')}
               </div>
               <div className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
@@ -138,8 +145,8 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
             </div>
 
             {/* Minutes */}
-            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-indigo-900/40 shadow-inner">
-              <div className="text-xl sm:text-3xl font-bold font-mono text-indigo-200">
+            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-sky-900/40 shadow-inner">
+              <div className="text-xl sm:text-3xl font-bold font-mono text-sky-200">
                 {String(minutes).padStart(2, '0')}
               </div>
               <div className="text-[11px] sm:text-xs text-stone-400 mt-0.5">
@@ -148,8 +155,8 @@ export const NonInfallibleMarriageCard: React.FC<NonInfallibleMarriageCardProps>
             </div>
 
             {/* Seconds */}
-            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-indigo-900/40 shadow-inner relative overflow-hidden">
-              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
+            <div className="bg-stone-950/80 rounded-xl p-2.5 sm:p-3 border border-sky-900/40 shadow-inner relative overflow-hidden">
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-sky-500 animate-ping" />
               <div className="text-xl sm:text-3xl font-bold font-mono text-amber-300">
                 {String(seconds).padStart(2, '0')}
               </div>

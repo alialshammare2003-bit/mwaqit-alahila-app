@@ -276,3 +276,62 @@
 .theme-sapphire-violet ::-webkit-scrollbar-thumb {
   background: rgba(168, 85, 247, 0.5);
 }
+
+/* ==========================================================================
+   8. DOMAIN CLASS: FIQH SANCTUARY (القسم الفقهي والأحكام الشرعية)
+   ========================================================================== */
+.domain-fiqh-canvas {
+  font-family: 'Scheherazade New', 'Amiri', serif;
+  background: radial-gradient(circle at 50% 8%, #032b1f 0%, #021a13 35%, #010d0a 80%, #000806 100%);
+  color: #ecfdf5;
+}
+
+.domain-fiqh-canvas .fiqh-card {
+  background: linear-gradient(135deg, rgba(3, 38, 28, 0.94) 0%, rgba(2, 22, 16, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 12px 36px rgba(4, 120, 87, 0.22);
+  color: #ecfdf5;
+}
+
+.domain-fiqh-canvas .fiqh-gold-accent {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.16) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: #fef08a;
+}
+
+.domain-fiqh-canvas .fiqh-manuscript-border {
+  border-image: linear-gradient(to right, #059669, #f59e0b, #059669) 1;
+}
+
+.domain-fiqh-canvas ::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.6);
+}
+
+/* ==========================================================================
+   9. DOMAIN CLASS: CALENDAR & EVENTS CELESTIAL (قسم المناسبات والأهلة)
+   ========================================================================== */
+.domain-calendar-canvas {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  background: radial-gradient(circle at 50% 8%, #0f172a 0%, #0a0f1d 35%, #040711 80%, #020308 100%);
+  color: #f8fafc;
+}
+
+.domain-calendar-canvas .calendar-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.93) 0%, rgba(8, 13, 26, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  box-shadow: 0 12px 36px rgba(14, 165, 233, 0.18);
+  color: #f8fafc;
+}
+
+.domain-calendar-canvas .calendar-lunar-accent {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(99, 102, 241, 0.18) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #bae6fd;
+}
+
+.domain-calendar-canvas ::-webkit-scrollbar-thumb {
+  background: rgba(14, 165, 233, 0.6);
+}
+
